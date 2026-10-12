@@ -1,0 +1,11 @@
+# Зависимости Node.js
+node_modules/
+
+# Логи твоего сервера Fastify и npm
+*.log
+npm-debug.log*
+
+# Будущие файлы с секретами и паролями
+.env
+*.env
+
