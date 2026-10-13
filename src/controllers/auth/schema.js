@@ -1,23 +1,4 @@
-export const getUsersSchema = {
-  tags: ["Auth"],
-  summary: "Получение списка всех пользователей",
-
-  response: {
-    200: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          user_id: { type: "string", format: "uuid" },
-          nickname: { type: "string" },
-          created_at: { type: "string", format: "date-time" },
-        },
-      },
-    },
-  },
-};
-
-export const registerSchema = {
+export const postRegisterSchema = {
   tags: ["Auth"],
   summary: "Регистрация нового пользователя",
 
@@ -57,33 +38,6 @@ export const registerSchema = {
     },
 
     400: {
-      type: "object",
-      properties: {
-        status: { type: "string" },
-        message: { type: "string" },
-      },
-    },
-  },
-};
-
-export const deleteUserSchema = {
-  tags: ["Auth"],
-  summary: "Удаление пользователя по его user_id",
-
-  params: {
-    type: "object",
-    required: ["user_id"],
-    properties: {
-      user_id: {
-        type: "string",
-        format: "uuid",
-        description: "UUID пользователя, которого нужно удалить",
-      },
-    },
-  },
-
-  response: {
-    200: {
       type: "object",
       properties: {
         status: { type: "string" },

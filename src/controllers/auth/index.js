@@ -1,71 +1,25 @@
-// import bcrypt from "bcrypt";
-import { eq } from "drizzle-orm";
-import { users } from "../../db/models/users.js";
-import { deleteUserSchema, getUsersSchema, registerSchema } from "./schema.js";
+import authService from "./service.js";
+import { postRegisterSchema } from "./schema.js";
 
 export default async function authController(fastify, options) {
-  fastify.post("/register", { schema: registerSchema }, async (request, reply) => {
-    const { nickname, password } = request.body;
+  fastify.post("/register", { schema: postRegisterSchema }, async (request, reply) => {
     const db = fastify.db;
 
     try {
-      const [new_user] = await db
-        .insert(users)
-        .values({
-          nickname: nickname,
-          password: password,
-        })
-        .returning();
+      const newUser = await authService.registerUser(db, request.body);
 
-      reply.code(201);
-
-      return {
+      return reply.code(201).send({
         status: "success",
         message: "Вы успешно зарегистрированы!",
-        user: new_user,
-      };
+        user: newUser,
+      });
     } catch (err) {
-      if (err.message?.includes("violates unique constraint")) {
-        reply.code(400);
-        return { status: "error", message: "Этот никнейм уже занят!" };
+      if (err.statusCode === 400) {
+        return reply.code(400).send({ status: "error", message: err.message });
       }
 
       fastify.log.error(err);
-      reply.code(500);
-      return { status: "error", message: "Внутренняя ошибка сервера" };
+      return reply.code(500).send({ status: "error", message: "Внутренняя ошибка сервера" });
     }
-  });
-
-  fastify.get("/users", { schema: getUsersSchema }, async (request, reply) => {
-    const db = fastify.db;
-
-    try {
-      const allUsers = await db.select().from(users);
-
-      return allUsers;
-    } catch (err) {
-      fastify.log.error(err);
-      reply.code(500);
-      return { status: "error", message: "Не удалось получить пользователей" };
-    }
-  });
-
-  fastify.delete("/users/:user_id", { schema: deleteUserSchema }, async (request, reply) => {
-    const { user_id } = request.params;
-    const db = fastify.db;
-
-    const [existingUser] = await db.select().from(users).where(eq(users.user_id, user_id));
-
-    if (!existingUser) {
-      reply.code(404);
-      return { status: "error", message: "Пользователь с таким ID не найден!" };
-    }
-
-    await db.delete(users).where(eq(users.user_id, user_id));
-
-    return {
-      status: "success",
-      message: `Пользователь ${existingUser.nickname} успешно стерт из системы!`,
-    };
   });
 }
