@@ -5,20 +5,17 @@ import { deleteUserSchema, getUsersSchema, registerSchema } from "./schema.js";
 
 export default async function authController(fastify, options) {
   fastify.post("/register", { schema: registerSchema }, async (request, reply) => {
-    // Благодарю валидации Fastify, мы уверены, что никнейм и пароль пришли правильными
     const { nickname, password } = request.body;
     const db = fastify.db;
 
     try {
-      // const hashed_password = await bcrypt.hash(password, 10);
-
       const [new_user] = await db
         .insert(users)
         .values({
           nickname: nickname,
           password: password,
         })
-        .returning(); // Просим базу вернуть созданную строку
+        .returning();
 
       reply.code(201);
 
