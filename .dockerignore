@@ -1,4 +1,9 @@
 node_modules
-npm-debug.log
-dist
+.git
 .env
+.env.*
+*.log
+drizzle
+README.md
+.DS_Store
+coverage

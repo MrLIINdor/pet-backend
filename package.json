@@ -4,7 +4,10 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev": "npx drizzle-kit migrate && nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "migrate": "drizzle-kit migrate",
+    "generate": "drizzle-kit generate"
   },
   "repository": {
     "type": "git",
@@ -19,12 +22,15 @@
   "homepage": "https://github.com/MrLIINdor/pet-backend#readme",
   "description": "",
   "dependencies": {
+    "@fastify/error": "^4.2.1",
+    "@fastify/jwt": "^10.2.4",
     "@fastify/postgres": "^6.1.1",
     "@fastify/swagger": "^9.9.2",
     "@fastify/swagger-ui": "^6.1.2",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.4",
-    "fastify": "^5.12.5"
+    "fastify": "^5.12.5",
+    "fastify-plugin": "^6.0.1"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.11",
