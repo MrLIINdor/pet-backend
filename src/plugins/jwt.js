@@ -6,6 +6,10 @@ async function jwtPlugin(fastify) {
     secret: process.env.JWT_SECRET,
     sign: { expiresIn: "7d" },
   });
+
+  fastify.decorate("authenticate", async function (request, reply) {
+    await request.jwtVerify();
+  });
 }
 
 export default fp(jwtPlugin, { name: "jwt" });

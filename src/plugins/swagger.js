@@ -10,6 +10,15 @@ async function swaggerPlugin(fastify) {
         description: "Документация нашего Fastify сервера",
         version: "1.0.0",
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
     },
   });
 

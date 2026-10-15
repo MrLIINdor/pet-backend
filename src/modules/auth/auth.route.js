@@ -1,43 +1,19 @@
-import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
-import { users } from "../../db/models/users.js";
-import { registerSchema } from "./auth.schema.js";
+import { AuthLoginSchema, AuthRegisterSchema } from "./auth.schema.js";
+import { createAuthService } from "./auth.service.js";
 
 export default async function authRoutes(fastify) {
-  fastify.post("/register", { schema: registerSchema }, async (request, reply) => {
-    const { nickname, password } = request.body;
+  const authService = createAuthService({
+    db: fastify.db,
+    jwt: fastify.jwt,
+  });
 
-    const [existing] = await fastify.db
-      .select({ userId: users.userId })
-      .from(users)
-      .where(eq(users.nickname, nickname))
-      .limit(1);
+  fastify.post("/register", { schema: AuthRegisterSchema }, async (request, reply) => {
+    const result = await authService.register(request.body);
+    return reply.code(201).send(result);
+  });
 
-    if (existing) {
-      return reply.code(409).send({
-        statusCode: 409,
-        code: "NICKNAME_TAKEN",
-        error: "Conflict",
-        message: "Nickname already taken",
-      });
-    }
-
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const [user] = await fastify.db
-      .insert(users)
-      .values({ nickname, password: passwordHash })
-      .returning({
-        userId: users.userId,
-        nickname: users.nickname,
-        createdAt: users.createdAt,
-      });
-
-    const token = fastify.jwt.sign({
-      userId: user.userId,
-      nickname: user.nickname,
-    });
-
-    return reply.code(201).send({ user, token });
+  fastify.post("/login", { schema: AuthLoginSchema }, async (request, reply) => {
+    const result = await authService.login(request.body);
+    return reply.code(200).send(result);
   });
 }
